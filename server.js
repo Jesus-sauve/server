@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true })) // for parsing application/x-www
 mongoose.connect(process.env.DATABASE_CLOUD, {
     useUnifiedTopology: false,
     })
-    .then(() => console.log('Base de données connectée'))
+    .then(() => console.log('DataBase Connected'))
     .catch(err => {
         console.log(err);
     });
@@ -30,7 +30,7 @@ mongoose.connect(process.env.DATABASE_CLOUD, {
     const theologieRoutes = require('./routes/theologie');
 
     const corsOptions = {
-        origin: "http://localhost:3000",
+        origin: "https://basebiblique.org",
         credentials: true,
       }
 // middlewares
@@ -38,7 +38,7 @@ mongoose.connect(process.env.DATABASE_CLOUD, {
 app.use(cors(corsOptions));
 app.use(express.json()) // for parsing application/json
 app.use(cookieParser());
-app.use(morgan('dev'));
+app.use(morgan('tiny'));
 // cors
 
 
@@ -60,7 +60,7 @@ app.get("/api/csrf-token", (req, res) => {
     res.json({ csrfToken: req.csrfToken() });
   });
 // port
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 8001;
 app.listen(port, () => {
     console.log(`Le port du serveur est ${port}`);
 });
