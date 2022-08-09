@@ -44,7 +44,7 @@ exports.create = (req, res) => {
         enseignement.title = title;
         enseignement.body = body;
         enseignement.excerpt = smartTrim(body, 120, ' ', ' ...');
-        enseignement.slug = slugify(title).toLowerCase();
+        enseignement.slug = slugify(title).toLowerCase().replace('\'', '-');
         enseignement.mtitle = `${title} | ${process.env.APP_NAME}`;
         enseignement.mdesc = stripHtml(body.substring(0, 160));
 
@@ -185,11 +185,17 @@ exports.update = (req, res) => {
                 });
             }
 
+            
+            const { body, title, desc, categories } = fields;
+
             let slugBeforeMerge = oldEnseignement.slug;
             oldEnseignement = _.merge(oldEnseignement, fields);
             oldEnseignement.slug = slugBeforeMerge;
 
-            const { body, desc, categories } = fields;
+            if (title) {
+                oldEnseignement.title = title;
+                oldEnseignement.slug = slugify(title).toLowerCase().replace('\'', '-');
+            }
 
             if (body) {
                 oldEnseignement.excerpt = smartTrim(body, 120, ' ', ' ...');

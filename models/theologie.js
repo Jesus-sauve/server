@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Schema;
 
 const theologieSchema = new mongoose.Schema(
     {
@@ -29,7 +30,8 @@ const theologieSchema = new mongoose.Schema(
         },
         mdesc: {
             type: String
-        }
+        },
+        theologieSousThemes: [{ type: ObjectId, ref: 'TheologieSousTheme', required: true }],
         
     },
     { timestamps: true }

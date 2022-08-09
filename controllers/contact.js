@@ -5,7 +5,7 @@ exports.contactForm = (req, res) => {
  
   const emailData = {
     from: "basebiblique@hotmail.com", // MAKE SURE THIS EMAIL IS YOUR GMAIL FOR WHICH YOU GENERATED APP PASSWORD
-    to: "basebiblique@hotmail.com", // WHO SHOULD BE RECEIVING THIS EMAIL? IT SHOULD BE YOUR GMAIL
+    to: "basebiblique@gmail.com", // WHO SHOULD BE RECEIVING THIS EMAIL? IT SHOULD BE YOUR GMAIL
     subject: "Un message de Basebiblique.org",
     text: `Email reçut de la part de ${name}`,
     html: `

@@ -37,7 +37,7 @@ exports.create = (req, res) => {
         videos.title = title;
         videos.body = body;
         videos.excerpt = smartTrim(body, 120, ' ', ' ...');
-        videos.slug = slugify(title).toLowerCase();
+        videos.slug = slugify(title).toLowerCase().replace('\'', '-');
         videos.mtitle = `${title} | ${process.env.APP_NAME}`;
         videos.mdesc = stripHtml(body.substring(0, 160));
 
@@ -141,11 +141,16 @@ exports.update = (req, res) => {
                 });
             }
 
+            const { body, title, desc } = fields;
+
             let slugBeforeMerge = oldVideo.slug;
             oldVideo = _.merge(oldVideo, fields);
             oldVideo.slug = slugBeforeMerge;
-
-            const { body, desc } = fields;
+            
+            if (title) {
+                oldVideo.title = title;
+                oldVideo.slug = slugify(title).toLowerCase().replace('\'', '-');
+            }
 
             if (body) {
                 oldVideo.excerpt = smartTrim(body, 120, ' ', ' ...');

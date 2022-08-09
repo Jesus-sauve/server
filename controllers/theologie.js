@@ -6,6 +6,7 @@ const _ = require('lodash');
 const { errorHandler } = require('../helpers/dbErrorHandler');
 const fs = require('fs');
 const { smartTrim } = require('../helpers/theologie');
+const TheologieSousTheme = require('../models/theologieSousTheme');
 
 exports.create = (req, res) => {
 
@@ -19,7 +20,7 @@ exports.create = (req, res) => {
             });
         }
 
-        const { title, body } = fields;
+        const { title, body, theologieSousThemes } = fields;
 
             if (!title || !title.length) {
             return res.status(400).json({
@@ -33,15 +34,20 @@ exports.create = (req, res) => {
             });
         }
 
+        if (!theologieSousThemes || theologieSousThemes.length === 0) {
+            return res.status(400).json({
+                error: 'Merci de cocher un thème'
+            });
+        }
+
         let theologie = new Theologie();
         theologie.title = title;
         theologie.body = body;
         theologie.excerpt = smartTrim(body, 120, ' ', ' ...');
-        theologie.slug = slugify(title).toLowerCase();
+        theologie.slug = slugify(title).toLowerCase().replace('\'', '-');
         theologie.mtitle = `${title} | ${process.env.APP_NAME}`;
-        theologie.mdesc = stripHtml(body.substring(0, 160));
-
- 
+        theologie.mdesc = stripHtml(body.substring(0, 160))
+        let arrayOfTheologieSousThemes = theologieSousThemes && theologieSousThemes.split(',')
 
         theologie.save((err, result) => {
             if (err) {
@@ -49,7 +55,16 @@ exports.create = (req, res) => {
                     error: errorHandler(err)
                 });
             }
-            res.json(result);
+            Theologie.findByIdAndUpdate(result._id, {$push: {theologieSousThemes: arrayOfTheologieSousThemes}}, {new: true}).exec((err, result) => {
+                if(err) {
+                    return res.status(400).json({
+                        error: errorHandler(err)
+                    })
+                } else {
+                    res.json(result)
+                }
+
+            })
 
         })
     })
@@ -60,7 +75,8 @@ exports.create = (req, res) => {
 
 exports.list = (req, res) => {
     Theologie.find({})
-        .select('_id title slug excerpt body createdAt updatedAt')
+        .populate('theologieSousThemes', '_id name slug')
+        .select('_id title slug excerpt body theologieSousThemes createdAt updatedAt')
         .exec((err, data) => {
             if (err) {
                 return res.json({
@@ -96,7 +112,8 @@ exports.read = (req, res) => {
     const slug = req.params.slug.toLowerCase();
     Theologie.findOne({ slug })
         // .select("-photo")
-        .select('_id title body slug excerpt createdAt updatedAt')
+        .populate('theologieSousThemes', '_id name slug')
+        .select('_id title body slug excerpt theologieSousThemes createdAt updatedAt')
         .exec((err, data) => {
             if (err) {
                 return res.json({
@@ -116,7 +133,7 @@ exports.remove = (req, res) => {
             });
         }
         res.json({
-            message: 'supprimée réussit'
+            message: 'suppression réussit'
         });
     });
 };
@@ -135,21 +152,31 @@ exports.update = (req, res) => {
         form.keepExtensions = true;
 
         form.parse(req, (err, fields, files) => {
+
             if (err) {
                 return res.status(400).json({
                     error: "Impossible de charger l'image"
                 });
             }
+            const { title, body, desc, theologieSousThemes } = fields;
 
+            
             let slugBeforeMerge = oldTheologie.slug;
             oldTheologie = _.merge(oldTheologie, fields);
             oldTheologie.slug = slugBeforeMerge;
-
-            const { body, desc } = fields;
+            
+            if (title) {
+                oldTheologie.title = title;
+                oldTheologie.slug = slugify(title).toLowerCase().replace('\'', '-');
+            }
 
             if (body) {
                 oldTheologie.excerpt = smartTrim(body, 120, ' ', ' ...');
                 oldTheologie.desc = stripHtml(body.substring(0, 160));
+            }
+
+            if (theologieSousThemes) {
+                oldTheologie.theologieSousThemes = theologieSousThemes.split(',');
             }
 
             oldTheologie.save((err, result) => {

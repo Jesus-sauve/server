@@ -31,7 +31,7 @@ exports.create = (req, res) => {
         let presentation = new Presentation();
         presentation.title = title;
         presentation.body = body;
-        presentation.slug = slugify(title).toLowerCase();
+        presentation.slug = slugify(title).toLowerCase().replace('\'', '-');
 
         presentation.save((err, result) => {
             if (err) {
@@ -92,9 +92,16 @@ exports.update = (req, res) => {
                 });
             }
 
+            const { title, body } = fields;
+
             let slugBeforeMerge = oldPresentation.slug;
             oldPresentation = _.merge(oldPresentation, fields);
             oldPresentation.slug = slugBeforeMerge;
+
+            if (title) {
+                oldPresentation.title = title;
+                oldPresentation.slug = slugify(title).toLowerCase().replace('\'', '-');
+            }
 
             oldPresentation.save((err, result) => {
                 if (err) {

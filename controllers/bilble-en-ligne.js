@@ -37,7 +37,7 @@ exports.create = (req, res) => {
         bible.title = title;
         bible.body = body;
         bible.excerpt = smartTrim(body, 120, ' ', ' ...');
-        bible.slug = slugify(title).toLowerCase();
+        bible.slug = slugify(title).toLowerCase().replace('\'', '-');
         bible.mtitle = `${title} | ${process.env.APP_NAME}`;
         bible.mdesc = stripHtml(body.substring(0, 160));
 

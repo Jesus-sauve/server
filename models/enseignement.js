@@ -35,8 +35,7 @@ const enseignementSchema = new mongoose.Schema(
             data: Buffer,
             contentType: String
         },
-        categories: [{ type: ObjectId, ref: 'Category', required: true }],
-        comments:[{ type: ObjectId, ref: 'Comment', required: true }],
+        categories: [{ type: ObjectId, ref: 'Category', required: true }]
         
     },
     { timestamps: true }

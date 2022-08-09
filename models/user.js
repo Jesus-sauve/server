@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema(
         },
         role: {
           type: [String],
-          default: ["Utilisateur"],
+          default: ["Admin"],
           enum: ["Utilisateur", "Admin"],
         },
         passwordResetCode: {
