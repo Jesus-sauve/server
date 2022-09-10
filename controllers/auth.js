@@ -7,12 +7,21 @@ const { hashPassword, comparePassword } = require('../utils/auth');
 const { errorHandler } = require('../helpers/dbErrorHandler');
 const _ = require('lodash');
 
+exports.list = (req, res) => {
+  User.find({}).exec((err, data) => {
+      if (err) {
+          return res.sendStatus(400).json({
+              error: errorHandler(err)
+          });
+      }
+      res.json(data);
+  });
+};
+
 exports.signup = async (req, res) => {
     try {
     // console.log(req.body);
-    const { nom, email, password } = req.body; 
-
-    if (!nom) return res.status(400).send("Veuillez saisir votre nom");
+    const { email, password } = req.body; 
 
     if (!(email).toLowerCase().match( /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)) {
         return res
@@ -33,7 +42,6 @@ exports.signup = async (req, res) => {
 
     // register
     const user = new User({
-        nom,
         email,
         password: hashedPassword,
     });

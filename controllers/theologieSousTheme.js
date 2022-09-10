@@ -4,6 +4,7 @@ const slugify = require('slugify');
 const { errorHandler } = require('../helpers/dbErrorHandler');
 const formidable = require('formidable');
 const fs = require('fs');
+const _ = require('lodash');
 
 exports.create = (req, res) => {
         
@@ -53,6 +54,50 @@ exports.create = (req, res) => {
     });
 };
 
+exports.update = (req, res) => {
+    const slug = req.params.slug.toLowerCase();
+
+    TheologieSousTheme.findOne({ slug }).exec((err, oldTheologieSousTheme) => {
+        if (err) {
+            return res.status(400).json({
+                error: errorHandler(err)
+            });
+        }
+
+        let form = new formidable.IncomingForm();
+        form.keepExtensions = true;
+
+        form.parse(req, (err, fields, files) => {
+
+            const { name, theologieTheme } = fields;
+
+            let slugBeforeMerge = oldTheologieSousTheme.slug;
+            oldTheologieSousTheme = _.merge(oldTheologieSousTheme, fields);
+            oldTheologieSousTheme.slug = slugBeforeMerge;
+
+            if (name) {
+                oldTheologieSousTheme.name = name;
+                oldTheologieSousTheme.slug = slugify(name).toLowerCase().replace('\'', '-');
+            }
+
+            if (theologieTheme) {
+                oldTheologieSousTheme.theologieTheme = theologieTheme.split(',');
+            }
+
+            oldTheologieSousTheme.save((err, result) => {
+                if (err) {
+                    return res.status(400).json({
+                        error: errorHandler(err)
+                    });
+                }
+
+                res.json(result);
+            });
+        });
+    });
+};
+
+
 exports.list = (req, res) => {
     TheologieSousTheme.find({}).exec((err, data) => {
         if (err) {
@@ -91,7 +136,8 @@ exports.read = (req, res) => {
 exports.show = (req, res) => {
     const slug = req.params.slug.toLowerCase();
     TheologieSousTheme.findOne({ slug })
-    .select('_id name slug')
+    .populate('theologieTheme', '_id name slug')
+    .select('_id name slug theologieTheme')
     .exec((err, data) => {
         if (err) {
             return res.json({

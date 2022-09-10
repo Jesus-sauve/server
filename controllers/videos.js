@@ -60,7 +60,7 @@ exports.create = (req, res) => {
 
 exports.list = (req, res) => {
     Videos.find({})
-        .select('_id title slug excerpt createdAt updatedAt')
+        .select('_id title slug body excerpt createdAt updatedAt')
         .exec((err, data) => {
             if (err) {
                 return res.json({

@@ -72,6 +72,21 @@ exports.show = (req, res) => {
     });
 };
 
+exports.remove = (req, res) => {
+    const slug = req.params.slug.toLowerCase();
+
+    Presentation.findOneAndRemove({ slug }).exec((err, data) => {
+        if (err) {
+            return res.sendStatus(400).json({
+                error: errorHandler(err)
+            });
+        }
+        res.json({
+            message: 'Suppression réussit'
+        });
+    });
+};
+
 exports.update = (req, res) => {
     const slug = req.params.slug.toLowerCase();
 

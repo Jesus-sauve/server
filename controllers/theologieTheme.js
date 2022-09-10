@@ -1,7 +1,9 @@
 const TheologieTheme = require('../models/theologieTheme');
+const formidable = require('formidable');
 const slugify = require('slugify');
 const { errorHandler } = require('../helpers/dbErrorHandler');
 const TheologieSousTheme = require('../models/theologieSousTheme');
+const _ = require('lodash');
 const Theologie = require('../models/theologie');
 
 exports.create = (req, res) => {
@@ -26,6 +28,26 @@ exports.create = (req, res) => {
     });
 });
 };
+
+exports.update = (req, res) => {
+
+    const { name } = req.body;
+    const slug = slugify(name).toLowerCase().replace('\'', '-');
+
+    const theologieTheme = new TheologieTheme({
+        _id: req.params.id,
+        name, slug
+      });
+      TheologieTheme.updateOne({_id: req.params.id}, theologieTheme).then(() => {
+        res.status(201).json({
+        message: 'Thing updated successfully!'
+        });
+    }).catch(
+    (error) => {
+        res.status(400).json({
+        error: error
+        });
+    })};
 
 exports.list = (req, res) => {
     TheologieTheme.find({}).exec((err, data) => {

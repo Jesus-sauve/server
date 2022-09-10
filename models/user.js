@@ -3,11 +3,6 @@ const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema(
     {
-        nom: {
-          type: String,
-          trim: true,
-          required: true,
-        },
         email: {
           type: String,
           trim: true,
@@ -18,10 +13,6 @@ const userSchema = new mongoose.Schema(
           required: true,
           min: 6,
           max: 64,
-        },
-        picture: {
-          type: String,
-          default: "/avatar.png",
         },
         role: {
           type: [String],
